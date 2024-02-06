@@ -22,10 +22,11 @@ We would like you to implement a simple UI to view a list of variants. When clic
 The enum for the classification states can be found in `./store/variants.state.ts`.
 This classification needs to be persisted in the applications state management. It should be possible to reduce the current list of variants by searching via variant name in an input field. A new variants batch should be loaded into the applications state management if the user either scrolls to the end of the variant list or if they click on a button located at the end of the list.
 
-We expect that this your provided implementation can handle 100.000 variants at the same time.
+We expect that your provided implementation can handle 100.000 variants at the same time without any noticeable performance degradations.
 
 The below screenshot can be taken as reference but it is not needed to replicate this exact design.
 ![](example-screen.png)
+
 
 ## Hints ##
 
