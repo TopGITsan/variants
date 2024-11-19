@@ -1,0 +1,8 @@
+<input
+  class="w-full p-4 shadow rounded-lg"
+  [placeholder]="placeholder + ' (press enter to start the search)'"
+  matInput
+  type="text"
+  [(ngModel)]="label"
+  (keydown)="handleKey($event)"
+/>
