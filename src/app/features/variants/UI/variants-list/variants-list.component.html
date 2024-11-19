@@ -1,0 +1,9 @@
+<mat-list>
+  <div *ngIf="data.length === 0" class="text-center">Empty list</div>
+  <mat-list-item *ngFor="let variant of data; trackBy trackVariantBy">
+    <h3 matLine title="Name" class="text-gray-800">
+      {{ 'variant' }}
+    </h3>
+  </mat-list-item>
+  <!-- <mat-divider *ngIf="data.length !== 0"></mat-divider> -->
+</mat-list>

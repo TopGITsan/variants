@@ -3,7 +3,7 @@ import { Action, Selector, State, StateContext } from '@ngxs/store';
 import { DummyAction } from './variants.actions';
 import { faker } from '@faker-js/faker';
 
-interface Variant {
+export interface Variant {
   id: string;
   name: string;
   gene: string;
