@@ -17,13 +17,17 @@ export interface Variant {
   classification?: Classification;
 }
 
-enum Classification {
+export enum Classification {
   'Benign',
   'Likely Benign',
   'Uncertain Significance',
   'Likely Pathogenic',
   'Pathogenic',
 }
+export type ClassificationKey = keyof typeof Classification;
+export const classificatonArray: Array<ClassificationKey> = Object.values(
+  Classification
+).filter((val): val is ClassificationKey => typeof val === 'string');
 
 export interface VariantsStateModel {
   variants: Variant[];
@@ -38,7 +42,7 @@ export interface VariantsStateModel {
 })
 export class VariantsState {
   constructor() {
-    console.log(this.generateVariantBatch());
+    // console.log(this.generateVariantBatch());
   }
 
   @Selector()
