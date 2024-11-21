@@ -1,8 +1,10 @@
 import { Injectable } from '@angular/core';
-import { Action, Selector, State, StateContext } from '@ngxs/store';
+import { Action, Selector, State, StateContext, Store } from '@ngxs/store';
 import { DummyAction } from './variants.actions';
 import { faker } from '@faker-js/faker';
+import { of, tap } from 'rxjs';
 
+// interfaces
 export interface Variant {
   id: string;
   name: string;
@@ -32,7 +34,7 @@ export const classificatonArray: Array<ClassificationKey> = Object.values(
 export interface VariantsStateModel {
   variants: Variant[];
 }
-
+// state
 @Injectable()
 @State<VariantsStateModel>({
   name: 'variants',
@@ -41,17 +43,24 @@ export interface VariantsStateModel {
   },
 })
 export class VariantsState {
-  constructor() {
+  constructor(private store: Store) {
     // console.log(this.generateVariantBatch());
   }
-
+  // Memoized selectors
   @Selector()
   static dummySelector(state: VariantsStateModel): Variant[] {
     return state.variants;
   }
-
+  // listen to actions
   @Action(DummyAction)
-  getData(ctx: StateContext<VariantsStateModel>): void {}
+  getData(ctx: StateContext<VariantsStateModel>) {
+    return of(this.generateVariantBatch()).pipe(
+      tap((variants) => {
+        console.log('>>>>>>>>>> tap into DummyAction', variants);
+        ctx.setState({ variants });
+      })
+    );
+  }
 
   private generateVariantBatch(): Variant[] {
     const variants: Variant[] = [];

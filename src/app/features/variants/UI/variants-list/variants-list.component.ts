@@ -19,7 +19,7 @@ import { ScrollingModule } from '@angular/cdk/scrolling';
   imports: [MatListModule, NgIf, ScrollingModule],
 })
 export class VariantsListComponent {
-  @Input() data: Variant[] = [];
+  @Input() data: Variant[] | null = [];
   @Output() select = new EventEmitter<Variant>();
 
   trackVariantBy(index: number, variant: Variant) {

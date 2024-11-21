@@ -1,5 +1,5 @@
 <mat-list class="h-[440px]">
-  <div *ngIf="data.length === 0" class="text-center">Empty list</div>
+  <div *ngIf="!data || data.length === 0" class="text-center">Empty list</div>
   <cdk-virtual-scroll-viewport
     itemSize="50"
     minBufferPx="440"
@@ -13,7 +13,7 @@
         trackBy: trackVariantBy
       "
     >
-      {{ "item.name" }}
+      {{ item.name }}
     </mat-list-item>
   </cdk-virtual-scroll-viewport>
 </mat-list>
