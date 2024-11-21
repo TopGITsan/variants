@@ -1,0 +1,57 @@
+<p class="h-1">{{ variant?.name }}</p>
+
+<div class="p-1">
+  <span class="font-bold">Gene:</span>
+  <span class="pl-1">{{ variant?.gene }}</span>
+</div>
+<div class="p-1">
+  <span class="font-bold">Location:</span>
+  <span class="pl-1">{{ variant?.location }}</span>
+</div>
+<div class="p-1">
+  <span class="font-bold">Variant Type:</span>
+  <span class="pl-1">{{ variant?.variantType }}</span>
+</div>
+<div class="p-1">
+  <span class="font-bold">Frequency:</span>
+  <span class="pl-1">{{ variant?.frequency }}</span>
+</div>
+<div class="p-1">
+  <span class="font-bold">Phatogeniticy:</span>
+  <span class="pl-1">{{ variant?.pathogenicity }}</span>
+</div>
+<div class="p-1">
+  <span class="font-bold">Exon:</span>
+  <span class="pl-1">{{ variant?.exon }}</span>
+</div>
+<div class="p-1">
+  <span class="font-bold">References:</span>
+  <span class="pl-1">{{ variant?.references }}</span>
+</div>
+<mat-divider class="!my-6"></mat-divider>
+<label id="radio-group-label" class="block font-bold mb-2"
+  >Classification:</label
+>
+<mat-radio-group
+  aria-labelledby="radio-group-label"
+  class="flex flex-wrap"
+  [(ngModel)]="classificationValue"
+>
+  <mat-radio-button
+    *ngFor="
+      let classification of classificatonValues;
+      index as index;
+      last as last;
+      let first = first
+    "
+    class="border border-solid border-gray-400 border-collapse ml-[-1px] pr-2"
+    (click)="onChangeClassification(variant, index)"
+    [ngClass]="{
+      'rounded-l-lg': first,
+      'rounded-r-lg': last,
+
+    }"
+    [value]="index"
+    >{{ classification }}</mat-radio-button
+  >
+</mat-radio-group>

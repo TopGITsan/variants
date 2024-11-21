@@ -1,7 +1,14 @@
-<div>
-  <app-search-input
-    (search)="onSearch($event)"
-    placeholder="Search for variants"
-  ></app-search-input>
-  <app-variants-list></app-variants-list>
+<app-search-input
+  class="max-w-md"
+  (search)="onSearch($event)"
+  placeholder="Search for variants"
+></app-search-input>
+<div class="flex flex-wrap border-b border-solid border-gray-300">
+  <app-variants-list
+    class="my-4 basis-[448px] max-w-md border-r border-solid border-gray-300"
+  ></app-variants-list>
+  <app-variant-details
+    class="m-4 py-2 p-10 grow"
+    (changeClassification)="onChangeClassification($event)"
+  ></app-variant-details>
 </div>
