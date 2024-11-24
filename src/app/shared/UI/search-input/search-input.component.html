@@ -1,8 +1,7 @@
 <input
   class="w-full p-4 rounded-lg border border-solid border-gray-300"
-  [placeholder]="placeholder + ' (press enter to start the search)'"
+  [placeholder]="placeholder"
   matInput
+  #inputSearchText
   type="text"
-  [(ngModel)]="label"
-  (keydown)="handleKey($event)"
 />

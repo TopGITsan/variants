@@ -1,9 +1,18 @@
 import { AsyncPipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  OnInit,
+} from '@angular/core';
 import { Select, Store } from '@ngxs/store';
-import { Observable } from 'rxjs';
+import { combineLatest, map, Observable } from 'rxjs';
 import { SearchInputComponent } from 'src/app/shared/UI/search-input/search-input.component';
-import { SelectVariantId } from 'src/app/store/variants.actions';
+import {
+  ChangeVariantClassification,
+  SearchText,
+  SelectVariantId,
+} from 'src/app/store/variants.actions';
 import { Variant, VariantsState } from 'src/app/store/variants.state';
 import { VariantDetailsComponent } from './UI/variant-details/variant-details.component';
 import { VariantsListComponent } from './UI/variants-list/variants-list.component';
@@ -22,7 +31,7 @@ import { ChangeClassification } from './interface/variant.interface';
     AsyncPipe,
   ],
 })
-export class VariantsComponent {
+export class VariantsComponent implements OnInit {
   @Select(VariantsState.variantsSelector) variants$:
     | Observable<Variant[]>
     | undefined;
@@ -35,20 +44,47 @@ export class VariantsComponent {
     | Observable<Variant | null>
     | undefined;
 
-    @Select(VariantsState.loadingSelector) loading$:
+  @Select(VariantsState.loadingSelector) loading$:
     | Observable<boolean>
     | undefined;
 
+  @Select(VariantsState.searchTextSelector) searchText$:
+    | Observable<string>
+    | undefined;
+
+  filteredVariants$: Observable<Variant[]> | undefined;
+
   #store: Store = inject(Store);
 
-  onSearch(text: string) {
-    console.log('>>>>>>>>>>>> search for ', text);
+  ngOnInit(): void {
+    if (this.variants$ && this.searchText$) {
+      this.filteredVariants$ = combineLatest([
+        this.variants$,
+        this.searchText$,
+      ]).pipe(
+        map(([variants, searchText]) =>
+          searchText
+            ? variants?.filter((variant) =>
+                variant.name.toLowerCase().includes(searchText)
+              )
+            : variants
+        )
+      );
+    }
   }
 
-  onChangeClassification(changeClassification: ChangeClassification) {
+  onSearch(searchText: string) {
+    console.log('>>>>>>>>>>>> search for ', searchText);
+    this.#store.dispatch(new SearchText({ searchText }));
+  }
+
+  onChangeClassification(changeVariantClassification: ChangeClassification) {
     console.log(
       '>>>>>>>>>>>> change variant classificaton',
-      changeClassification
+      changeVariantClassification
+    );
+    this.#store.dispatch(
+      new ChangeVariantClassification({ changeVariantClassification })
     );
   }
 

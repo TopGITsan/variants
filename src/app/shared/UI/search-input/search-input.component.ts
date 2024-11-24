@@ -1,12 +1,19 @@
 import {
+  AfterViewInit,
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
+  ElementRef,
   EventEmitter,
+  inject,
   Input,
   Output,
+  ViewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
+import { debounceTime, distinctUntilChanged, fromEvent, map } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 @Component({
   selector: 'app-search-input',
   standalone: true,
@@ -15,15 +22,30 @@ import { MatInputModule } from '@angular/material/input';
   styleUrls: ['./search-input.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SearchInputComponent {
+export class SearchInputComponent implements AfterViewInit {
   @Input() placeholder = 'Search';
   @Output() search = new EventEmitter<string>();
-  label = '';
+  @ViewChild('inputSearchText') inputSearchText:
+    | ElementRef<HTMLInputElement>
+    | undefined;
 
-  handleKey(event: any) {
-    if (event.keyCode === 13) {
-      this.search.emit(this.label);
-      // this.label = '';
+  private readonly destroyRef = inject(DestroyRef);
+
+  ngAfterViewInit(): void {
+    const inputSearchTextElement = this.inputSearchText?.nativeElement;
+    if (inputSearchTextElement) {
+      fromEvent(inputSearchTextElement, 'input')
+        .pipe(
+          takeUntilDestroyed(this.destroyRef),
+          debounceTime(650),
+          map((event) => (event.target as HTMLInputElement).value),
+          distinctUntilChanged()
+        )
+        .subscribe((value) => this.onChangeSearchText(value));
     }
+  }
+
+  onChangeSearchText(text: string): void {
+    this.search.emit(text);
   }
 }

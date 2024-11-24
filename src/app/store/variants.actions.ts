@@ -1,3 +1,4 @@
+import { ChangeClassification } from '../features/variants/interface/variant.interface';
 import { Variant } from './variants.state';
 
 // demo action
@@ -27,6 +28,18 @@ export class LoadVariantsFailure {
 }
 
 export class SelectVariantId {
-  static readonly type = '[Variants] Selected variat id';
+  static readonly type = '[Variants] Selected variant id action';
   constructor(public payload: { selectedVariantId: string }) {}
+}
+
+export class ChangeVariantClassification {
+  static readonly type = '[Variants] Update variant classification action';
+  constructor(
+    public payload: { changeVariantClassification: ChangeClassification }
+  ) {}
+}
+
+export class SearchText {
+  static readonly type = '[Variants] Search text';
+  constructor(public payload: { searchText: string }) {}
 }

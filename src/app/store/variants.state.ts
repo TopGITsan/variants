@@ -2,12 +2,14 @@ import { Injectable } from '@angular/core';
 import { faker } from '@faker-js/faker';
 import { Action, Selector, State, StateContext, Store } from '@ngxs/store';
 import { patch } from '@ngxs/store/operators';
-import { catchError, from, map, of, switchMap, tap } from 'rxjs';
+import { of, tap } from 'rxjs';
 import {
+  ChangeVariantClassification,
   DummyAction,
   LoadVariants,
   LoadVariantsFailure,
   LoadVariantsSuccess,
+  SearchText,
   SelectVariantId,
 } from './variants.actions';
 
@@ -43,6 +45,7 @@ export interface VariantsStateModel {
   variantsArrayPos: Record<string, number>;
   selectedVariantId: string | null;
   loading: boolean;
+  searchText: string;
 }
 // state
 @Injectable()
@@ -53,11 +56,13 @@ export interface VariantsStateModel {
     variantsArrayPos: {},
     selectedVariantId: null,
     loading: false,
+    searchText: '',
   },
 })
 export class VariantsState {
   constructor(private store: Store) {
     // console.log(this.generateVariantBatch());
+    console.log('>>>>>>> Store init');
   }
   // Memoized selectors
   @Selector()
@@ -90,6 +95,11 @@ export class VariantsState {
     }
 
     return state.variants.at(position) ?? null;
+  }
+
+  @Selector()
+  static searchTextSelector(state: VariantsStateModel): string {
+    return state.searchText;
   }
   // listen to actions
   @Action(DummyAction)
@@ -144,7 +154,7 @@ export class VariantsState {
       setTimeout(() => {
         const [variants, variantsArrayPos] = this.generateVariantBatch();
         ctx.dispatch(new LoadVariantsSuccess({ variants, variantsArrayPos }));
-      }, 2000);
+      }, 1000);
     } catch (error) {
       ctx.dispatch(new LoadVariantsFailure());
     }
@@ -181,6 +191,48 @@ export class VariantsState {
     ctx.setState(
       patch({
         selectedVariantId: payload.selectedVariantId,
+      })
+    );
+  }
+
+  @Action(ChangeVariantClassification)
+  handleUpdateVariantClassification(
+    ctx: StateContext<VariantsStateModel>,
+    { payload }: ChangeVariantClassification
+  ) {
+    const variants = ctx.getState().variants;
+    const position =
+      ctx.getState().variantsArrayPos[payload.changeVariantClassification.id];
+
+    const variant: Variant | undefined = variants.at(position);
+    if (!variant) {
+      return;
+    }
+    const updatedVariant = {
+      ...variant,
+      classification: payload.changeVariantClassification.classification,
+    };
+
+    ctx.setState(
+      patch({
+        // variants.map((item, index) => index === position ? updatedVariant : item); // O(n)
+        variants: [
+          ...variants.slice(0, position),
+          updatedVariant,
+          ...variants.slice(position + 1),
+        ],
+      })
+    );
+  }
+
+  @Action(SearchText)
+  handleSeachText(
+    ctx: StateContext<VariantsStateModel>,
+    { payload }: SearchText
+  ) {
+    ctx.setState(
+      patch({
+        searchText: payload.searchText.toLowerCase(),
       })
     );
   }
