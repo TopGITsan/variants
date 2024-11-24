@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { faker } from '@faker-js/faker';
 import { Action, Selector, State, StateContext, Store } from '@ngxs/store';
 import { patch } from '@ngxs/store/operators';
-import { of, tap } from 'rxjs';
+import { catchError, from, map, of, switchMap, tap } from 'rxjs';
 import {
   DummyAction,
   LoadVariants,
@@ -112,13 +112,35 @@ export class VariantsState {
         loading: true,
       })
     );
-    try {
-      const [variants, variantsArrayPos] = this.generateVariantBatch();
-      ctx.dispatch(new LoadVariantsSuccess({ variants, variantsArrayPos }));
-    } catch (error) {
-      ctx.dispatch(new LoadVariantsFailure());
-    }
+    return from(
+      new Promise<[Variant[], Record<string, number>]>((resolve, reject) => {
+        try {
+          const [variants, variantsArrayPos] = this.generateVariantBatch();
+          resolve([variants, variantsArrayPos]);
+        } catch (error) {
+          reject('Create batch error');
+        }
+      })
+    ).pipe(
+      switchMap(([variants, variantsArrayPos]) =>
+        ctx.dispatch(new LoadVariantsSuccess({ variants, variantsArrayPos }))
+      ),
+      catchError((_) => ctx.dispatch(new LoadVariantsFailure()))
+    );
   }
+  // handleLoadVariants(ctx: StateContext<VariantsStateModel>) {
+  //   ctx.setState(
+  //     patch({
+  //       loading: true,
+  //     })
+  //   );
+  //   try {
+  //     const [variants, variantsArrayPos] = this.generateVariantBatch();
+  //     ctx.dispatch(new LoadVariantsSuccess({ variants, variantsArrayPos }));
+  //   } catch (error) {
+  //     ctx.dispatch(new LoadVariantsFailure());
+  //   }
+  // }
 
   @Action(LoadVariantsSuccess)
   handleLoadVariantsSuccess(

@@ -8,7 +8,7 @@ import {
 import { Select, Store } from '@ngxs/store';
 import { Observable } from 'rxjs';
 import { SearchInputComponent } from 'src/app/shared/UI/search-input/search-input.component';
-import { LoadVariants, SelectVariantId } from 'src/app/store/variants.actions';
+import { SelectVariantId } from 'src/app/store/variants.actions';
 import { Variant, VariantsState } from 'src/app/store/variants.state';
 import { VariantDetailsComponent } from './UI/variant-details/variant-details.component';
 import { VariantsListComponent } from './UI/variants-list/variants-list.component';
@@ -27,7 +27,7 @@ import { ChangeClassification } from './interface/variant.interface';
     AsyncPipe,
   ],
 })
-export class VariantsComponent implements OnInit {
+export class VariantsComponent {
   @Select(VariantsState.variantsSelector) variants$:
     | Observable<Variant[]>
     | undefined;
@@ -41,9 +41,6 @@ export class VariantsComponent implements OnInit {
     | undefined;
 
   #store: Store = inject(Store);
-  ngOnInit(): void {
-    this.#store.dispatch(new LoadVariants());
-  }
 
   onSearch(text: string) {
     console.log('>>>>>>>>>>>> search for ', text);
