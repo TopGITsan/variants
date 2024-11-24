@@ -16,8 +16,7 @@ export class LoadVariantsSuccess {
   static readonly type = '[Variants] Load variants success action';
   constructor(
     public payload: {
-      variants: Variant[];
-      variantsArrayPos: Record<string, number>;
+      variantsRecord: Record<string, Variant>;
     }
   ) {}
 }

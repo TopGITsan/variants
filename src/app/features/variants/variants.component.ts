@@ -1,12 +1,7 @@
-import { AsyncPipe } from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  OnInit,
-} from '@angular/core';
+import { AsyncPipe, JsonPipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { Select, Store } from '@ngxs/store';
-import { combineLatest, map, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
 import { SearchInputComponent } from 'src/app/shared/UI/search-input/search-input.component';
 import {
   ChangeVariantClassification,
@@ -29,11 +24,12 @@ import { ChangeClassification } from './interface/variant.interface';
     VariantDetailsComponent,
     VariantsListComponent,
     AsyncPipe,
+    JsonPipe,
   ],
 })
-export class VariantsComponent implements OnInit {
-  @Select(VariantsState.variantsSelector) variants$:
-    | Observable<Variant[]>
+export class VariantsComponent {
+  @Select(VariantsState.variantsRecordSelector) variantsRecord$:
+    | Observable<Record<string, Variant>>
     | undefined;
 
   @Select(VariantsState.selectedVariantIdSelector) selectedVariantId$:
@@ -52,26 +48,7 @@ export class VariantsComponent implements OnInit {
     | Observable<string>
     | undefined;
 
-  filteredVariants$: Observable<Variant[]> | undefined;
-
   #store: Store = inject(Store);
-
-  ngOnInit(): void {
-    if (this.variants$ && this.searchText$) {
-      this.filteredVariants$ = combineLatest([
-        this.variants$,
-        this.searchText$,
-      ]).pipe(
-        map(([variants, searchText]) =>
-          searchText
-            ? variants?.filter((variant) =>
-                variant.name.toLowerCase().includes(searchText)
-              )
-            : variants
-        )
-      );
-    }
-  }
 
   onSearch(searchText: string) {
     console.log('>>>>>>>>>>>> search for ', searchText);

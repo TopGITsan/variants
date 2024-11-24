@@ -1,5 +1,5 @@
 import { ScrollingModule } from '@angular/cdk/scrolling';
-import { NgClass, NgIf } from '@angular/common';
+import { KeyValuePipe, NgClass, NgIf } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -8,6 +8,8 @@ import {
   Output,
 } from '@angular/core';
 import { MatListModule } from '@angular/material/list';
+import { FuzzyPipe } from 'src/app/shared/pipe/fuzzy-search.pipe';
+import { isEmptyObject } from 'src/app/shared/utils/empty-object.function';
 import { Variant } from 'src/app/store/variants.state';
 
 @Component({
@@ -16,14 +18,25 @@ import { Variant } from 'src/app/store/variants.state';
   standalone: true,
   styleUrls: ['./variants-list.component.scss'],
   templateUrl: './variants-list.component.html',
-  imports: [MatListModule, NgIf, ScrollingModule, NgClass],
+  imports: [
+    MatListModule,
+    NgIf,
+    ScrollingModule,
+    NgClass,
+    KeyValuePipe,
+    FuzzyPipe,
+  ],
 })
 export class VariantsListComponent {
-  @Input() data: Variant[] | null = [];
+  @Input() data?: Record<string, Variant> | null;
+
   @Input() selectedVariantId?: string | null;
   @Input() loading: boolean | null = false;
+  @Input() searchText: string | null = '';
 
   @Output() select = new EventEmitter<string>();
+
+  isEmpty = isEmptyObject;
 
   trackVariantBy(index: number, variant: Variant) {
     return variant.id ?? String(index);

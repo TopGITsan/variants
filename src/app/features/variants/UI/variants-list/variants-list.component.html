@@ -1,10 +1,8 @@
 <mat-list class="h-[440px]">
-  <mat-list-item class="text-center" *ngIf="loading && !data?.length">
+  <mat-list-item class="text-center" *ngIf="loading && isEmpty(data)">
     Loading list...
   </mat-list-item>
-  <div *ngIf="!loading && (!data || data.length === 0)" class="text-center">
-    Empty list
-  </div>
+  <div *ngIf="!loading && isEmpty(data)" class="text-center">Empty list</div>
   <cdk-virtual-scroll-viewport
     itemSize="50"
     minBufferPx="440"
@@ -12,16 +10,15 @@
     class="h-full"
   >
     <mat-list-item
-      [ngClass]="{ '!bg-blue-500 !rounded': variant.id === selectedVariantId }"
+      [ngClass]="{ '!bg-blue-500 !rounded': variant.key === selectedVariantId }"
       *cdkVirtualFor="
-        let variant of data;
+        let variant of (data | keyvalue | fuzzy: searchText ?? '');
         templateCacheSize: 0;
-        trackBy: trackVariantBy;
         let first = first
       "
-      (click)="onSelectVariant(variant)"
+      (click)="onSelectVariant(variant.value)"
     >
-      {{ variant.name }}
+      {{ variant?.value?.name }}
     </mat-list-item>
   </cdk-virtual-scroll-viewport>
 </mat-list>

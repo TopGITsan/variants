@@ -2,10 +2,8 @@ import { Injectable } from '@angular/core';
 import { faker } from '@faker-js/faker';
 import { Action, Selector, State, StateContext, Store } from '@ngxs/store';
 import { patch } from '@ngxs/store/operators';
-import { of, tap } from 'rxjs';
 import {
   ChangeVariantClassification,
-  DummyAction,
   LoadVariants,
   LoadVariantsFailure,
   LoadVariantsSuccess,
@@ -41,8 +39,7 @@ export const classificatonArray: Array<ClassificationKey> = Object.values(
 ).filter((val): val is ClassificationKey => typeof val === 'string');
 
 export interface VariantsStateModel {
-  variants: Variant[];
-  variantsArrayPos: Record<string, number>;
+  variantsRecord: Record<string, Variant>;
   selectedVariantId: string | null;
   loading: boolean;
   searchText: string;
@@ -52,8 +49,7 @@ export interface VariantsStateModel {
 @State<VariantsStateModel>({
   name: 'variants',
   defaults: {
-    variants: [],
-    variantsArrayPos: {},
+    variantsRecord: {},
     selectedVariantId: null,
     loading: false,
     searchText: '',
@@ -65,15 +61,12 @@ export class VariantsState {
     console.log('>>>>>>> Store init');
   }
   // Memoized selectors
-  @Selector()
-  static dummySelector(state: VariantsStateModel): Variant[] {
-    // demo selector
-    return state.variants;
-  }
-  @Selector()
-  static variantsSelector(state: VariantsStateModel): Variant[] {
-    return state.variants;
-  }
+  // @Selector()
+  // static dummySelector(state: VariantsStateModel): Variant[] {
+  //   // demo selector
+  //   return state.variants;
+  // }
+
   @Selector()
   static selectedVariantIdSelector(state: VariantsStateModel): string | null {
     return state.selectedVariantId;
@@ -89,36 +82,39 @@ export class VariantsState {
     if (!state.selectedVariantId) {
       return null;
     }
-    const position = state.variantsArrayPos[state.selectedVariantId];
-    if (isNaN(position)) {
-      return null;
-    }
 
-    return state.variants.at(position) ?? null;
+    return state.variantsRecord[state.selectedVariantId] ?? null;
   }
 
   @Selector()
   static searchTextSelector(state: VariantsStateModel): string {
     return state.searchText;
   }
-  // listen to actions
-  @Action(DummyAction)
-  getData(ctx: StateContext<VariantsStateModel>) {
-    return of(this.generateVariantBatch()).pipe(
-      tap(([variants, variantsArrayPos]) => {
-        console.log('>>>>>>>>>> tap into DummyAction', {
-          variants,
-          variantsArrayPos,
-        });
-        ctx.setState(
-          patch({
-            variants,
-            variantsArrayPos,
-          })
-        );
-      })
-    );
+
+  @Selector()
+  static variantsRecordSelector(
+    state: VariantsStateModel
+  ): Record<string, Variant> {
+    return state.variantsRecord;
   }
+  // listen to actions
+  // @Action(DummyAction)
+  // getData(ctx: StateContext<VariantsStateModel>) {
+  //   return of(this.generateVariantBatch()).pipe(
+  //     tap(([variants, variantsArrayPos]) => {
+  //       console.log('>>>>>>>>>> tap into DummyAction', {
+  //         variants,
+  //         variantsArrayPos,
+  //       });
+  //       ctx.setState(
+  //         patch({
+  //           variants,
+  //           variantsArrayPos,
+  //         })
+  //       );
+  //     })
+  //   );
+  // }
 
   @Action(LoadVariants)
   // handleLoadVariants(ctx: StateContext<VariantsStateModel>) {
@@ -152,9 +148,13 @@ export class VariantsState {
     try {
       // simulate a backend call
       setTimeout(() => {
-        const [variants, variantsArrayPos] = this.generateVariantBatch();
-        ctx.dispatch(new LoadVariantsSuccess({ variants, variantsArrayPos }));
-      }, 1000);
+        const [, , variantsRecord] = this.generateVariantBatch();
+        ctx.dispatch(
+          new LoadVariantsSuccess({
+            variantsRecord,
+          })
+        );
+      }, 600);
     } catch (error) {
       ctx.dispatch(new LoadVariantsFailure());
     }
@@ -167,8 +167,7 @@ export class VariantsState {
   ) {
     ctx.setState(
       patch({
-        variants: payload.variants,
-        variantsArrayPos: payload.variantsArrayPos,
+        variantsRecord: payload.variantsRecord,
         loading: false,
       })
     );
@@ -200,11 +199,8 @@ export class VariantsState {
     ctx: StateContext<VariantsStateModel>,
     { payload }: ChangeVariantClassification
   ) {
-    const variants = ctx.getState().variants;
-    const position =
-      ctx.getState().variantsArrayPos[payload.changeVariantClassification.id];
-
-    const variant: Variant | undefined = variants.at(position);
+    const records = ctx.getState().variantsRecord;
+    const variant = records[payload.changeVariantClassification.id];
     if (!variant) {
       return;
     }
@@ -212,15 +208,12 @@ export class VariantsState {
       ...variant,
       classification: payload.changeVariantClassification.classification,
     };
-
     ctx.setState(
       patch({
-        // variants.map((item, index) => index === position ? updatedVariant : item); // O(n)
-        variants: [
-          ...variants.slice(0, position),
-          updatedVariant,
-          ...variants.slice(position + 1),
-        ],
+        variantsRecord: {
+          ...records,
+          [payload.changeVariantClassification.id]: updatedVariant,
+        },
       })
     );
   }
@@ -237,15 +230,22 @@ export class VariantsState {
     );
   }
 
-  private generateVariantBatch(): [Variant[], Record<string, number>] {
+  private generateVariantBatch(): [
+    Variant[],
+    Record<string, number>,
+    Record<string, Variant>
+  ] {
     const variants: Variant[] = [];
     const variantsArrayPos: Record<string, number> = {};
+    const variantsRecord: Record<string, Variant> = {};
+
     for (let i = 0; i < 10000; i++) {
       const variant = this.generateVariant();
       variants.push(variant);
       variantsArrayPos[variant.id] = i;
+      variantsRecord[variant.id] = variant;
     }
-    return [variants, variantsArrayPos];
+    return [variants, variantsArrayPos, variantsRecord];
   }
 
   private generateVariant(): Variant {
