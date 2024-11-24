@@ -1,4 +1,5 @@
-import { NgFor, NgIf } from '@angular/common';
+import { ScrollingModule } from '@angular/cdk/scrolling';
+import { NgClass, NgIf } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -8,7 +9,6 @@ import {
 } from '@angular/core';
 import { MatListModule } from '@angular/material/list';
 import { Variant } from 'src/app/store/variants.state';
-import { ScrollingModule } from '@angular/cdk/scrolling';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -16,13 +16,22 @@ import { ScrollingModule } from '@angular/cdk/scrolling';
   standalone: true,
   styleUrls: ['./variants-list.component.scss'],
   templateUrl: './variants-list.component.html',
-  imports: [MatListModule, NgIf, ScrollingModule],
+  imports: [MatListModule, NgIf, ScrollingModule, NgClass],
 })
 export class VariantsListComponent {
   @Input() data: Variant[] | null = [];
-  @Output() select = new EventEmitter<Variant>();
+  @Input() selectedVariantId?: string | null;
+  @Output() select = new EventEmitter<string>();
 
   trackVariantBy(index: number, variant: Variant) {
     return variant.id ?? String(index);
+  }
+
+  onSelectVariant(variant: Variant) {
+    if (!variant.id) {
+      return;
+    }
+
+    this.select.emit(variant.id);
   }
 }

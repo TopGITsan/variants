@@ -7,13 +7,16 @@
     class="h-full"
   >
     <mat-list-item
+      [ngClass]="{ '!bg-blue-500 !rounded': variant.id === selectedVariantId }"
       *cdkVirtualFor="
-        let item of data;
+        let variant of data;
         templateCacheSize: 0;
-        trackBy: trackVariantBy
+        trackBy: trackVariantBy;
+        let first = first
       "
+      (click)="onSelectVariant(variant)"
     >
-      {{ item.name }}
+      {{ variant.name }}
     </mat-list-item>
   </cdk-virtual-scroll-viewport>
 </mat-list>

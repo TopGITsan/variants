@@ -1,13 +1,18 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { AsyncPipe } from '@angular/common';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  OnInit,
+} from '@angular/core';
+import { Select, Store } from '@ngxs/store';
+import { Observable } from 'rxjs';
 import { SearchInputComponent } from 'src/app/shared/UI/search-input/search-input.component';
+import { LoadVariants, SelectVariantId } from 'src/app/store/variants.actions';
+import { Variant, VariantsState } from 'src/app/store/variants.state';
 import { VariantDetailsComponent } from './UI/variant-details/variant-details.component';
 import { VariantsListComponent } from './UI/variants-list/variants-list.component';
 import { ChangeClassification } from './interface/variant.interface';
-import { Variant, VariantsState } from 'src/app/store/variants.state';
-import { Select, Store } from '@ngxs/store';
-import { Observable } from 'rxjs';
-import { AsyncPipe } from '@angular/common';
-import { DummyAction } from 'src/app/store/variants.actions';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -22,23 +27,37 @@ import { DummyAction } from 'src/app/store/variants.actions';
     AsyncPipe,
   ],
 })
-export class VariantsComponent {
-  @Select(VariantsState.dummySelector) variants$:
+export class VariantsComponent implements OnInit {
+  @Select(VariantsState.variantsSelector) variants$:
     | Observable<Variant[]>
     | undefined;
 
-  constructor(private readonly store: Store) {
-    this.store.dispatch(new DummyAction());
+  @Select(VariantsState.selectedVariantIdSelector) selectedVariantId$:
+    | Observable<string | null>
+    | undefined;
+
+  @Select(VariantsState.selectedVariantSelector) selectedVariant$:
+    | Observable<Variant | null>
+    | undefined;
+
+  #store: Store = inject(Store);
+  ngOnInit(): void {
+    this.#store.dispatch(new LoadVariants());
   }
 
   onSearch(text: string) {
     console.log('>>>>>>>>>>>> search for ', text);
   }
 
-  onChangeClassification(newVariantClassification: ChangeClassification) {
+  onChangeClassification(changeClassification: ChangeClassification) {
     console.log(
       '>>>>>>>>>>>> change variant classificaton',
-      newVariantClassification
+      changeClassification
     );
+  }
+
+  onSelectVariant(selectedVariantId: string) {
+    console.log('>>>>>>>>>>>> select  variant id', selectedVariantId);
+    this.#store.dispatch(new SelectVariantId({ selectedVariantId }));
   }
 }
