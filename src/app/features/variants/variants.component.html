@@ -7,7 +7,7 @@
   <app-variants-list
     [selectedVariantId]="selectedVariantId$ | async"
     [loading]="loading$ | async"
-    [data]="filteredVariants$ | async"
+    [data]="filteredVariantsSubject$ | async"
     (select)="onSelectVariant($event)"
     class="my-4 basis-[448px] max-w-md border-r border-solid border-gray-300"
   ></app-variants-list>
@@ -17,3 +17,4 @@
     (changeClassification)="onChangeClassification($event)"
   ></app-variant-details>
 </div>
+s
