@@ -75,6 +75,11 @@ export class VariantsState {
   }
 
   @Selector()
+  static loadingSelector(state: VariantsStateModel): boolean {
+    return state.loading;
+  }
+
+  @Selector()
   static selectedVariantSelector(state: VariantsStateModel): Variant | null {
     if (!state.selectedVariantId) {
       return null;
@@ -106,41 +111,44 @@ export class VariantsState {
   }
 
   @Action(LoadVariants)
-  handleLoadVariants(ctx: StateContext<VariantsStateModel>) {
-    ctx.setState(
-      patch({
-        loading: true,
-      })
-    );
-    return from(
-      new Promise<[Variant[], Record<string, number>]>((resolve, reject) => {
-        try {
-          const [variants, variantsArrayPos] = this.generateVariantBatch();
-          resolve([variants, variantsArrayPos]);
-        } catch (error) {
-          reject('Create batch error');
-        }
-      })
-    ).pipe(
-      switchMap(([variants, variantsArrayPos]) =>
-        ctx.dispatch(new LoadVariantsSuccess({ variants, variantsArrayPos }))
-      ),
-      catchError((_) => ctx.dispatch(new LoadVariantsFailure()))
-    );
-  }
   // handleLoadVariants(ctx: StateContext<VariantsStateModel>) {
   //   ctx.setState(
   //     patch({
   //       loading: true,
   //     })
   //   );
-  //   try {
-  //     const [variants, variantsArrayPos] = this.generateVariantBatch();
-  //     ctx.dispatch(new LoadVariantsSuccess({ variants, variantsArrayPos }));
-  //   } catch (error) {
-  //     ctx.dispatch(new LoadVariantsFailure());
-  //   }
+  //   return from(
+  //     new Promise<[Variant[], Record<string, number>]>((resolve, reject) => {
+  //       try {
+  //         const [variants, variantsArrayPos] = this.generateVariantBatch();
+  //         resolve([variants, variantsArrayPos]);
+  //       } catch (error) {
+  //         reject('Create batch error');
+  //       }
+  //     })
+  //   ).pipe(
+  //     switchMap(([variants, variantsArrayPos]) =>
+  //       ctx.dispatch(new LoadVariantsSuccess({ variants, variantsArrayPos }))
+  //     ),
+  //     catchError((_) => ctx.dispatch(new LoadVariantsFailure()))
+  //   );
   // }
+  handleLoadVariants(ctx: StateContext<VariantsStateModel>) {
+    ctx.setState(
+      patch({
+        loading: true,
+      })
+    );
+    try {
+      // simulate a backend call
+      setTimeout(() => {
+        const [variants, variantsArrayPos] = this.generateVariantBatch();
+        ctx.dispatch(new LoadVariantsSuccess({ variants, variantsArrayPos }));
+      }, 2000);
+    } catch (error) {
+      ctx.dispatch(new LoadVariantsFailure());
+    }
+  }
 
   @Action(LoadVariantsSuccess)
   handleLoadVariantsSuccess(

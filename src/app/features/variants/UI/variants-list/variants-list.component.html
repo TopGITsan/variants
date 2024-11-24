@@ -1,5 +1,10 @@
 <mat-list class="h-[440px]">
-  <div *ngIf="!data || data.length === 0" class="text-center">Empty list</div>
+  <mat-list-item class="text-center" *ngIf="loading && !data?.length">
+    Loading list...
+  </mat-list-item>
+  <div *ngIf="!loading && (!data || data.length === 0)" class="text-center">
+    Empty list
+  </div>
   <cdk-virtual-scroll-viewport
     itemSize="50"
     minBufferPx="440"

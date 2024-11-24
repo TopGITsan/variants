@@ -21,6 +21,8 @@ import { Variant } from 'src/app/store/variants.state';
 export class VariantsListComponent {
   @Input() data: Variant[] | null = [];
   @Input() selectedVariantId?: string | null;
+  @Input() loading: boolean | null = false;
+
   @Output() select = new EventEmitter<string>();
 
   trackVariantBy(index: number, variant: Variant) {

@@ -1,10 +1,5 @@
 import { AsyncPipe } from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  OnInit,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { Select, Store } from '@ngxs/store';
 import { Observable } from 'rxjs';
 import { SearchInputComponent } from 'src/app/shared/UI/search-input/search-input.component';
@@ -38,6 +33,10 @@ export class VariantsComponent {
 
   @Select(VariantsState.selectedVariantSelector) selectedVariant$:
     | Observable<Variant | null>
+    | undefined;
+
+    @Select(VariantsState.loadingSelector) loading$:
+    | Observable<boolean>
     | undefined;
 
   #store: Store = inject(Store);
