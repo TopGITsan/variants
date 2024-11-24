@@ -1,4 +1,4 @@
-import { NgClass, NgFor } from '@angular/common';
+import { NgClass, NgFor, NgIf } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -24,6 +24,7 @@ import {
     NgClass,
     NgFor,
     ReactiveFormsModule,
+    NgIf,
   ],
   selector: 'app-variant-details',
   standalone: true,
@@ -31,7 +32,7 @@ import {
   templateUrl: './variant-details.component.html',
 })
 export class VariantDetailsComponent {
-  @Input() variant: Variant | undefined;
+  @Input() variant?: Variant | null;
 
   @Output() changeClassification = new EventEmitter<{
     id: string;
@@ -41,7 +42,7 @@ export class VariantDetailsComponent {
   classificatonValues = classificatonArray;
   classificationValue: number | undefined;
 
-  onChangeClassification(variant: Variant | undefined, value: number) {
+  onChangeClassification(variant: Variant | undefined | null, value: number) {
     if (!variant?.id) {
       return;
     }

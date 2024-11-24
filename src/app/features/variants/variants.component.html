@@ -12,6 +12,6 @@
   ></app-variants-list>
   <app-variant-details
     class="m-4 py-2 p-10 grow"
-    (changeClassification)="onChangeClassification($event)"
+    [variant]="selectedVariant$ | async"
   ></app-variant-details>
 </div>
