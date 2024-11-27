@@ -42,6 +42,7 @@ export const classificatonArray: Array<ClassificationKey> = Object.values(
 
 export interface VariantsStateModel {
   variants: Variant[];
+  // for fast lookups when selecting a variant
   variantsArrayPos: Record<string, number>;
   selectedVariantId: string | null;
   loading: boolean;
@@ -152,7 +153,13 @@ export class VariantsState {
     try {
       // simulate a backend call
       setTimeout(() => {
+        const startTime = performance.now();
+
         const [variants, variantsArrayPos] = this.generateVariantBatch();
+        const endTime = performance.now();
+        console.log(
+          `>>>> Creating a batch of variants took ${endTime - startTime} ms`
+        );
         ctx.dispatch(new LoadVariantsSuccess({ variants, variantsArrayPos }));
       }, 1000);
     } catch (error) {
@@ -200,6 +207,8 @@ export class VariantsState {
     ctx: StateContext<VariantsStateModel>,
     { payload }: ChangeVariantClassification
   ) {
+    const startTime = performance.now();
+
     const variants = ctx.getState().variants;
     const position =
       ctx.getState().variantsArrayPos[payload.changeVariantClassification.id];
@@ -212,15 +221,20 @@ export class VariantsState {
       ...variant,
       classification: payload.changeVariantClassification.classification,
     };
+    const updatedVariants = [
+      ...variants.slice(0, position),
+      updatedVariant,
+      ...variants.slice(position + 1),
+    ];
+    const endTime = performance.now();
+    console.log(
+      `>>>> Updating a variant from the batch took ${endTime - startTime} ms`
+    );
 
     ctx.setState(
       patch({
         // variants.map((item, index) => index === position ? updatedVariant : item); // O(n)
-        variants: [
-          ...variants.slice(0, position),
-          updatedVariant,
-          ...variants.slice(position + 1),
-        ],
+        variants: updatedVariants,
       })
     );
   }
@@ -240,7 +254,7 @@ export class VariantsState {
   private generateVariantBatch(): [Variant[], Record<string, number>] {
     const variants: Variant[] = [];
     const variantsArrayPos: Record<string, number> = {};
-    for (let i = 0; i < 10000; i++) {
+    for (let i = 0; i < 100000; i++) {
       const variant = this.generateVariant();
       variants.push(variant);
       variantsArrayPos[variant.id] = i;

@@ -32,6 +32,13 @@ export class SearchInputComponent implements AfterViewInit {
   private readonly destroyRef = inject(DestroyRef);
 
   ngAfterViewInit(): void {
+    this.initFromEventInput();
+  }
+
+  /**
+   * Using debouncing to make sure the search is performed less frequently
+   */
+  private initFromEventInput() {
     const inputSearchTextElement = this.inputSearchText?.nativeElement;
     if (inputSearchTextElement) {
       fromEvent(inputSearchTextElement, 'input')

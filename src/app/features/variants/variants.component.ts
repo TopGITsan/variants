@@ -63,7 +63,9 @@ export class VariantsComponent implements OnInit {
   ngOnInit(): void {
     this.initWorker();
   }
-
+  /**
+   * Use worker for parallel processing (background processing) without freezing the UI thread
+   */
   private initWorker() {
     const worker = new Worker(new URL('./variants.worker.ts', import.meta.url));
 
@@ -75,7 +77,7 @@ export class VariantsComponent implements OnInit {
         });
     }
     worker.onmessage = ({ data }) => {
-      // console.log('page got message from worker: ', data);
+      console.log('page got message from worker: ', data);
       this.filteredVariantsSubject$.next(data);
     };
   }

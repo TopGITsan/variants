@@ -5,6 +5,7 @@
   <div *ngIf="!loading && (!data || data.length === 0)" class="text-center">
     Empty list
   </div>
+  <!-- virtualization renders only a small portion of data in the DOM at any time, reduces rendering time and memory usage -->
   <cdk-virtual-scroll-viewport
     itemSize="50"
     minBufferPx="440"
