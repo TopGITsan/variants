@@ -251,10 +251,11 @@ export class VariantsState {
     );
   }
 
+
   private generateVariantBatch(): [Variant[], Record<string, number>] {
     const variants: Variant[] = [];
     const variantsArrayPos: Record<string, number> = {};
-    for (let i = 0; i < 100000; i++) {
+    for (let i = 0; i < 10000; i++) {
       const variant = this.generateVariant();
       variants.push(variant);
       variantsArrayPos[variant.id] = i;

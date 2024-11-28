@@ -7,7 +7,7 @@
   <app-variants-list
     [selectedVariantId]="selectedVariantId$ | async"
     [loading]="loading$ | async"
-    [data]="filteredVariantsSubject$ | async"
+    [data]="filteredVariants$ | async"
     (select)="onSelectVariant($event)"
     class="my-4 basis-[448px] max-w-md border-r border-solid border-gray-300"
   ></app-variants-list>

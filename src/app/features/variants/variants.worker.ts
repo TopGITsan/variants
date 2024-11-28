@@ -21,7 +21,7 @@ addEventListener('message', ({ data }) => {
 });
 
 /**
- * Optimeze memory usage by processing data in chunks
+ * Optimize memory usage by processing data in chunks
  * @param data
  * @param chunkSize
  * @param text

@@ -19,6 +19,7 @@ import { Variant, VariantsState } from 'src/app/store/variants.state';
 import { VariantDetailsComponent } from './UI/variant-details/variant-details.component';
 import { VariantsListComponent } from './UI/variants-list/variants-list.component';
 import { ChangeClassification } from './interface/variant.interface';
+import { VariantsWorkerService } from './service/variants-worker.service';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -54,32 +55,28 @@ export class VariantsComponent implements OnInit {
     | Observable<string>
     | undefined;
 
-  filteredVariants$: Observable<[Variant[], string]> | undefined;
-  filteredVariantsSubject$ = new Subject<Variant[]>();
+  private readonly variantsWorkerService = inject(VariantsWorkerService);
+  filteredVariants$ = this.variantsWorkerService.filteredVariants$;
 
   #store: Store = inject(Store);
   private readonly destroyRef = inject(DestroyRef);
 
   ngOnInit(): void {
-    this.initWorker();
+    this.initCombineLatest();
   }
   /**
    * Use worker for parallel processing (background processing) without freezing the UI thread
    */
-  private initWorker() {
-    const worker = new Worker(new URL('./variants.worker.ts', import.meta.url));
 
+  initCombineLatest() {
     if (this.variants$ && this.searchText$) {
       combineLatest([this.variants$, this.searchText$])
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe(([variants, searchText]) => {
-          worker.postMessage({ variants, searchText });
+          // console.log('>>>> send ', { searchText });
+          this.variantsWorkerService.sendMessage({ variants, searchText });
         });
     }
-    worker.onmessage = ({ data }) => {
-      console.log('page got message from worker: ', data);
-      this.filteredVariantsSubject$.next(data);
-    };
   }
 
   onSearch(searchText: string) {
