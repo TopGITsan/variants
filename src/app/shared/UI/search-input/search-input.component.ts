@@ -1,58 +1,39 @@
 import {
-  AfterViewInit,
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
-  ElementRef,
   EventEmitter,
   inject,
   Input,
+  OnInit,
   Output,
-  ViewChild,
 } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { MatInputModule } from '@angular/material/input';
-import { debounceTime, distinctUntilChanged, fromEvent, map } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { MatInputModule } from '@angular/material/input';
+import { debounceTime, distinctUntilChanged } from 'rxjs';
 @Component({
   selector: 'app-search-input',
   standalone: true,
-  imports: [MatInputModule, FormsModule],
+  imports: [MatInputModule, ReactiveFormsModule],
   templateUrl: './search-input.component.html',
   styleUrls: ['./search-input.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SearchInputComponent implements AfterViewInit {
+export class SearchInputComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly fb = inject(NonNullableFormBuilder);
+  searchFormControl = this.fb.control('');
   @Input() placeholder = 'Search';
   @Output() search = new EventEmitter<string>();
-  @ViewChild('inputSearchText') inputSearchText:
-    | ElementRef<HTMLInputElement>
-    | undefined;
 
-  private readonly destroyRef = inject(DestroyRef);
-
-  ngAfterViewInit(): void {
-    this.initFromEventInput();
-  }
-
-  /**
-   * Using debouncing to make sure the search is performed less frequently
-   */
-  private initFromEventInput() {
-    const inputSearchTextElement = this.inputSearchText?.nativeElement;
-    if (inputSearchTextElement) {
-      fromEvent(inputSearchTextElement, 'input')
-        .pipe(
-          takeUntilDestroyed(this.destroyRef),
-          debounceTime(650),
-          map((event) => (event.target as HTMLInputElement).value),
-          distinctUntilChanged()
-        )
-        .subscribe((value) => this.onChangeSearchText(value));
-    }
-  }
-
-  onChangeSearchText(text: string): void {
-    this.search.emit(text);
+  ngOnInit(): void {
+    this.searchFormControl.valueChanges
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        debounceTime(500),
+        distinctUntilChanged()
+      )
+      .subscribe((text) => this.search.emit(text));
   }
 }
