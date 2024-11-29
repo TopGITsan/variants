@@ -89,6 +89,9 @@ export class VariantsComponent implements OnInit {
     //   '>>>>>>>>>>>> change variant classificaton',
     //   changeVariantClassification
     // );
+    if (!changeVariantClassification.id) {
+      return;
+    }
     this.#store.dispatch(
       new ChangeVariantClassification({ changeVariantClassification })
     );

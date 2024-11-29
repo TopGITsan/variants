@@ -33,10 +33,9 @@
   <label id="radio-group-label" class="block font-bold mb-2"
     >Classification:</label
   >
-  <mat-radio-group
+  <mat-radio-group [formControl]="classificationFormControl"
     aria-labelledby="radio-group-label"
     class="flex flex-wrap"
-    [(ngModel)]="variant.classification"
   >
     <mat-radio-button
       *ngFor="
@@ -46,7 +45,6 @@
         let first = first
       "
       class="border border-solid border-gray-400 border-collapse ml-[-1px] pr-2 mb-2"
-      (click)="onChangeClassification(variant, index)"
       [ngClass]="{
         'rounded-l-lg': first,
         'rounded-r-lg': last,

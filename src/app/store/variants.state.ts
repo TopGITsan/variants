@@ -210,6 +210,9 @@ export class VariantsState {
     const startTime = performance.now();
 
     const variants = ctx.getState().variants;
+    if (!payload.changeVariantClassification.id) {
+      return;
+    }
     const position =
       ctx.getState().variantsArrayPos[payload.changeVariantClassification.id];
 
@@ -250,7 +253,6 @@ export class VariantsState {
       })
     );
   }
-
 
   private generateVariantBatch(): [Variant[], Record<string, number>] {
     const variants: Variant[] = [];

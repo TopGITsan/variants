@@ -2,13 +2,15 @@ import { NgClass, NgFor, NgIf } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
-  EventEmitter,
   Input,
+  OnChanges,
   Output,
+  SimpleChanges,
 } from '@angular/core';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatRadioModule } from '@angular/material/radio';
+import { debounceTime, distinctUntilChanged, map } from 'rxjs';
 import {
   Classification,
   classificatonArray,
@@ -18,34 +20,38 @@ import {
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    FormsModule,
     MatDividerModule,
     MatRadioModule,
     NgClass,
     NgFor,
-    ReactiveFormsModule,
     NgIf,
+    ReactiveFormsModule,
   ],
   selector: 'app-variant-details',
   standalone: true,
   styleUrls: ['./variant-details.component.scss'],
   templateUrl: './variant-details.component.html',
 })
-export class VariantDetailsComponent {
+export class VariantDetailsComponent implements OnChanges {
+  classificationFormControl = new FormControl<Classification | null>(null);
   @Input() variant?: Variant | null;
 
-  @Output() changeClassification = new EventEmitter<{
-    id: string;
-    classification: Classification | undefined;
-  }>();
-
+  @Output() changeClassification =
+    this.classificationFormControl.valueChanges.pipe(
+      debounceTime(500),
+      distinctUntilChanged(),
+      map((classification) => ({
+        id: this.variant?.id ?? null,
+        classification: classification ?? undefined,
+      }))
+    );
   classificatonValues = classificatonArray;
-  classificationValue: number | undefined;
 
-  onChangeClassification(variant: Variant | undefined | null, value: number) {
-    if (!variant?.id) {
-      return;
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['variant']) {
+      this.classificationFormControl.setValue(
+        this.variant?.classification ?? null
+      );
     }
-    this.changeClassification.emit({ id: variant.id, classification: value });
   }
 }
