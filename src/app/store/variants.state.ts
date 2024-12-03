@@ -111,12 +111,6 @@ export class VariantsState {
           variants,
           variantsArrayPos,
         });
-        ctx.setState(
-          patch({
-            variants,
-            variantsArrayPos,
-          })
-        );
       })
     );
   }
@@ -155,12 +149,22 @@ export class VariantsState {
       setTimeout(() => {
         const startTime = performance.now();
 
-        const [variants, variantsArrayPos] = this.generateVariantBatch();
+        const variants = this.generateVariantBatch();
+        const updatedVariants = [...ctx.getState().variants, ...variants];
+        const variantsArrayPos = updatedVariants.reduce(
+          (obj, variant, index) => ({ ...obj, [variant.id]: index }),
+          {}
+        );
         const endTime = performance.now();
         console.log(
           `>>>> Creating a batch of variants took ${endTime - startTime} ms`
         );
-        ctx.dispatch(new LoadVariantsSuccess({ variants, variantsArrayPos }));
+        ctx.dispatch(
+          new LoadVariantsSuccess({
+            variants: updatedVariants,
+            variantsArrayPos,
+          })
+        );
       }, 1000);
     } catch (error) {
       ctx.dispatch(new LoadVariantsFailure());
@@ -254,15 +258,13 @@ export class VariantsState {
     );
   }
 
-  private generateVariantBatch(): [Variant[], Record<string, number>] {
+  private generateVariantBatch(batchSize: number = 18): Variant[] {
     const variants: Variant[] = [];
-    const variantsArrayPos: Record<string, number> = {};
-    for (let i = 0; i < 10000; i++) {
+    for (let i = 0; i < batchSize; i++) {
       const variant = this.generateVariant();
       variants.push(variant);
-      variantsArrayPos[variant.id] = i;
     }
-    return [variants, variantsArrayPos];
+    return variants;
   }
 
   private generateVariant(): Variant {
