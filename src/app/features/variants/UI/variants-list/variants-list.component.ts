@@ -8,6 +8,7 @@ import {
   Output,
 } from '@angular/core';
 import { MatListModule } from '@angular/material/list';
+import { ScrollIntoViewDirective } from 'src/app/shared/directives/scroll-into-view.directive';
 import { Variant } from 'src/app/store/variants.state';
 
 @Component({
@@ -16,7 +17,13 @@ import { Variant } from 'src/app/store/variants.state';
   standalone: true,
   styleUrls: ['./variants-list.component.scss'],
   templateUrl: './variants-list.component.html',
-  imports: [MatListModule, NgIf, ScrollingModule, NgClass],
+  imports: [
+    MatListModule,
+    NgIf,
+    ScrollingModule,
+    NgClass,
+    ScrollIntoViewDirective,
+  ],
 })
 export class VariantsListComponent {
   @Input() data: Variant[] | null = [];
@@ -24,6 +31,8 @@ export class VariantsListComponent {
   @Input() loading: boolean | null = false;
 
   @Output() select = new EventEmitter<string>();
+
+  @Output() loadMoreVariants = new EventEmitter<void>();
 
   trackVariantBy(index: number, variant: Variant) {
     return variant.id ?? String(index);
@@ -35,5 +44,9 @@ export class VariantsListComponent {
     }
 
     this.select.emit(variant.id);
+  }
+
+  onScrollLastIntoView(what: any) {
+    this.loadMoreVariants.emit();
   }
 }

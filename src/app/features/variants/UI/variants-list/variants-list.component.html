@@ -18,11 +18,16 @@
         let variant of data;
         templateCacheSize: 0;
         trackBy: trackVariantBy;
-        let first = first
+        let first = first;
+        let last = last
       "
       (click)="onSelectVariant(variant)"
+      (appScrollIntoView)="last && onScrollLastIntoView($event)"
     >
       {{ variant.name }}
+    </mat-list-item>
+    <mat-list-item class="text-center" *ngIf="loading && data?.length">
+      Loading more...
     </mat-list-item>
   </cdk-virtual-scroll-viewport>
 </mat-list>
