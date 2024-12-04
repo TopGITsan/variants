@@ -54,7 +54,6 @@ export class VariantsComponent implements OnInit {
       combineLatest([this.variants$, this.searchText$])
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe(([variants, searchText]) => {
-          // console.log('>>>> send ', { searchText });
           this.variantsWorkerService.sendMessage({ variants, searchText });
         });
     }
@@ -70,5 +69,9 @@ export class VariantsComponent implements OnInit {
 
   onSelectVariant(selectedVariantId: string) {
     this.storeFacade.onSelectVariant(selectedVariantId);
+  }
+
+  onLoadMoreVariants(): void {
+    this.storeFacade.onLoadVariants();
   }
 }

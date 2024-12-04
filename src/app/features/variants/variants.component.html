@@ -9,6 +9,7 @@
     [loading]="loading$ | async"
     [data]="filteredVariants$ | async"
     (select)="onSelectVariant($event)"
+    (loadMoreVariants)="onLoadMoreVariants()"
     class="my-4 basis-[448px] max-w-md border-r border-solid border-gray-300"
   ></app-variants-list>
   <app-variant-details
