@@ -1,27 +1,28 @@
 /// <reference lib="webworker" />
 
 addEventListener('message', ({ data }) => {
-  console.log('>>>>>>>>>>>> worker here, received', data);
-  const startTime = performance.now();
+  console.log('>>>>>>>>>>>> worker here, received data length', data?.length);
 
   const { variants, searchText } = data;
+  if (!variants) {
+    postMessage([]);
+    return;
+  }
   // const response = searchText
   //   ? variants.filter((v: any) =>
   //       v.name.toLowerCase().includes(searchText.toLowerCase())
   //     )
   //   : variants;
+
   const response = searchText
     ? filterVariantsInChunks(variants, 1000, searchText)
     : variants;
-
-  const endTime = performance.now();
-  console.log(`>>>>>> to search variants worker took ${endTime - startTime}ms`);
 
   postMessage(response);
 });
 
 /**
- * Optimize memory usage by processing data in chunks
+ * Optimize memory usage by filtering data in chunks
  * @param data
  * @param chunkSize
  * @param text
