@@ -8,6 +8,7 @@ addEventListener('message', ({ data }) => {
     postMessage([]);
     return;
   }
+  // Search with no optimization
   // const response = searchText
   //   ? variants.filter((v: any) =>
   //       v.name.toLowerCase().includes(searchText.toLowerCase())

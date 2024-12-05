@@ -25,12 +25,12 @@ export class VariantsWorkerService implements OnDestroy {
     return fromEvent<MessageEvent>(this.worker, 'message').pipe(
       map((msg) => msg.data), // get data from event
       tap((result: Variant[]) =>
-        console.log('[Worker service] message event: ', result)
+        console.log('[Worker service] message event length: ', result.length)
       )
     );
   }
 
-  sendMessage(data: { variants: Variant[]; searchText: string }) {
+  sendMessage(data: { variants: Variant[] | null; searchText: string }) {
     this.worker.postMessage(data);
   }
 
