@@ -15,8 +15,7 @@
     <mat-list-item
       [ngClass]="{ '!bg-blue-500 !rounded': variant.id === selectedVariantId }"
       *cdkVirtualFor="
-        let variant of data;
-        templateCacheSize: 0;
+        let variant of data | appSearch : searchText ?? '' | async;
         trackBy: trackVariantBy;
         let first = first;
         let last = last

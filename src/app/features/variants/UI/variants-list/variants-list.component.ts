@@ -1,5 +1,5 @@
 import { ScrollingModule } from '@angular/cdk/scrolling';
-import { NgClass, NgIf } from '@angular/common';
+import { AsyncPipe, NgClass, NgIf } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -10,6 +10,7 @@ import {
 import { MatListModule } from '@angular/material/list';
 import { ScrollIntoViewDirective } from 'src/app/shared/directives/scroll-into-view.directive';
 import { Variant } from 'src/app/store/variants.state';
+import { SearchPipe } from '../../pipes/search.pipe';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -18,20 +19,22 @@ import { Variant } from 'src/app/store/variants.state';
   styleUrls: ['./variants-list.component.scss'],
   templateUrl: './variants-list.component.html',
   imports: [
+    AsyncPipe,
     MatListModule,
+    NgClass,
     NgIf,
     ScrollingModule,
-    NgClass,
     ScrollIntoViewDirective,
+    SearchPipe,
   ],
 })
 export class VariantsListComponent {
   @Input() data: Variant[] | null = [];
   @Input() selectedVariantId?: string | null;
+  @Input() searchText?: string | null = '';
   @Input() loading: boolean | null = false;
 
   @Output() select = new EventEmitter<string>();
-
   @Output() loadMoreVariants = new EventEmitter<void>();
 
   trackVariantBy(index: number, variant: Variant) {
@@ -39,10 +42,6 @@ export class VariantsListComponent {
   }
 
   onSelectVariant(variant: Variant) {
-    if (!variant.id) {
-      return;
-    }
-
     this.select.emit(variant.id);
   }
 
