@@ -11,6 +11,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatRadioModule } from '@angular/material/radio';
 import { debounceTime, distinctUntilChanged, map } from 'rxjs';
+import { HighlightDirective } from 'src/app/shared/directives/highlight.directive';
 import {
   Classification,
   classificatonArray,
@@ -26,6 +27,7 @@ import {
     NgFor,
     NgIf,
     ReactiveFormsModule,
+    HighlightDirective,
   ],
   selector: 'app-variant-details',
   standalone: true,
