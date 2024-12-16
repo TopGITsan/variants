@@ -1,24 +1,21 @@
-import { Injectable, OnDestroy } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { fromEvent, map, Subject, takeUntil, tap } from 'rxjs';
+import { injectDestroy } from 'src/app/shared/utils/inject-destroy';
 import { Variant } from 'src/app/store/variants.state';
 
 @Injectable({
   providedIn: 'root',
 })
-export class VariantsWorkerService implements OnDestroy {
+export class VariantsWorkerService {
   private readonly worker = new Worker(
     new URL('../variants.worker.ts', import.meta.url)
   );
   private readonly filteredVariantsSubject = new Subject<Variant[]>();
   readonly filteredVariants$ = this.filteredVariantsSubject.asObservable();
-  private readonly destroy$ = new Subject<void>();
+  private readonly destroy$ = injectDestroy();
 
   constructor() {
     this.setupService();
-  }
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   private waitForMessage() {

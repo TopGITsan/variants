@@ -1,17 +1,16 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  DestroyRef,
   EventEmitter,
   inject,
   Input,
   OnInit,
   Output,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
-import { debounceTime, distinctUntilChanged } from 'rxjs';
+import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
+import { injectDestroy } from '../../utils/inject-destroy';
 @Component({
   selector: 'app-search-input',
   standalone: true,
@@ -21,7 +20,7 @@ import { debounceTime, distinctUntilChanged } from 'rxjs';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SearchInputComponent implements OnInit {
-  private readonly destroyRef = inject(DestroyRef);
+  private readonly destroy$ = injectDestroy();
   private readonly fb = inject(NonNullableFormBuilder);
   searchFormControl = this.fb.control('');
   @Input() placeholder = 'Search';
@@ -29,11 +28,7 @@ export class SearchInputComponent implements OnInit {
 
   ngOnInit(): void {
     this.searchFormControl.valueChanges
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        debounceTime(500),
-        distinctUntilChanged()
-      )
+      .pipe(takeUntil(this.destroy$), debounceTime(500), distinctUntilChanged())
       .subscribe((text) => this.search.emit(text));
   }
 }
